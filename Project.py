@@ -1,11 +1,12 @@
 """
 @author: Yulin Wen
 
-Project - HW10
+Project
 """
 from collections import defaultdict
 from prettytable import PrettyTable
 import unittest
+import sqlite3
 
 
 class Student:
@@ -63,6 +64,7 @@ class University:
             self.summary_major()
             self.summary_students()
             self.summary_instructors()
+        self.sql_test()
 
     def enroll_students(self, path):
         """ load grades files """
@@ -110,7 +112,7 @@ class University:
                     self.majors[major][flag].add(course)
 
     @staticmethod
-    def file_reader(path, expected, sep='\t'):
+    def file_reader(path, expected, sep='\t', head=False):
         """ From HW8 """
         try:
             file = open(path)
@@ -118,6 +120,10 @@ class University:
             raise FileNotFoundError("Can't open", path)
         with file:
             for index, line in enumerate(file):
+                """ skip the head line"""
+                if head:
+                    head = False
+                    continue
                 curr_line = str(line).strip().split(sep)
                 if len(curr_line) != expected:
                     raise ValueError(
@@ -157,12 +163,26 @@ class University:
             table.add_row([dept, sorted(flag['R']), sorted(flag['E'])])
         print(table)
 
+    @staticmethod
+    def sql_test():
+        """ Test execute the sql """
+        db_file = '/Users/kriswen/SSW810-Project/810_startup.db'
+        db = sqlite3.connect(db_file)
+        sql_test = """select CWID, Name, Dept, Course, Studens from Instructors left join
+                            (select Instructor_CWID, Course, count(Student_CWID) as Studens from Grades group by Course)
+                      where Instructors.CWID = Instructor_CWID;"""
+        table = PrettyTable()
+        table.field_names = Instructor.get_field_name()
+        for row in db.execute(sql_test):
+            table.add_row(row)
+        print(table)
+
 
 class ProjectTest(unittest.TestCase):
-    stevens = University('/Users/kriswen/Downloads/students.txt',
-                         '/Users/kriswen/Downloads/instructors.txt',
-                         '/Users/kriswen/Downloads/grades.txt',
-                         '/Users/kriswen/Downloads/majors.txt')
+    stevens = University('/Users/kriswen/Downloads/810/data/students.txt',
+                         '/Users/kriswen/Downloads/810/data/instructors.txt',
+                         '/Users/kriswen/Downloads/810/data/grades.txt',
+                         '/Users/kriswen/Downloads/810/data/majors.txt')
 
     def test_stud(self):
         """ test if every student is setup properly """
