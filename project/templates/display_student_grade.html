@@ -1,0 +1,15 @@
+{% extends 'base.html' %}
+
+{% block body %}
+    {{ title }}
+    {{ table_title }}
+    <table border="1">
+        <th>Course</th>
+        <th>Grade</th>
+        {% for row in rows %}
+            <tr>
+                <td>{{ row.course }}</td>
+                <td>{{ row.grade }}</td>
+            </tr>
+    </table>
+{% endblock %}
