@@ -1,4 +1,4 @@
-from flask import Flask, render_template
+from flask import Flask, render_template, request
 import sqlite3
 
 app = Flask(__name__)
@@ -41,25 +41,24 @@ def choose_student():
     return render_template('student.html', students=students)
 
 
-# @app.route('/show_student', methods=['POST'])
-# def show_student():
-#     request =
-#     if request.method == 'POST':
-#         cwid = request.form['cwid']
-#
-#         query = "select Course, Grade from Grades where Student_CWID = ?"
-#         args = (cwid,)
-#         table_title = "Courses/Grades for CWID {}".format(cwid)
-#
-#         db = sqlite3.connect(db_file)
-#         results = db.execute(query, args)
-#         rows = [{'course': course, 'grade': grade} for course, grade in results]
-#         db.close()
-#
-#         return render_template('display_student_grade.html',
-#                                title="Stevens Repository",
-#                                table_title=table_title,
-#                                rows=rows)
+@app.route('/show_student', methods=['POST'])
+def show_student():
+    if request.method == 'POST':
+        cwid = request.form['cwid']
+
+        query = "select Course, Grade from Grades where Student_CWID = ?"
+        args = (cwid,)
+        table_title = "Courses/Grades for CWID {}".format(cwid)
+
+        db = sqlite3.connect(db_file)
+        results = db.execute(query, args)
+        rows = [{'course': course, 'grade': grade} for course, grade in results]
+        db.close()
+
+        return render_template('display_student_grade.html',
+                               title="Stevens Repository",
+                               table_title=table_title,
+                               rows=rows)
 
 
 @app.route('/instructors')
